@@ -65,7 +65,7 @@ class Database:
     def delete(self, ids):
         id = ids.split(',')
         for i in range(0, len(id)):
-            realid = int(i + 1)
+            realid = int(id[i]) + 1
             if len(self.db) > realid:
                 del self.db[realid]
             else:
