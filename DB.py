@@ -65,10 +65,11 @@ class Database:
     def delete(self, ids):
         id = ids.split(',')
         for i in range(0, len(id)):
-            if len(self.db) > i + 1:
-                del self.db[i + 1]
+            realid = int(i + 1)
+            if len(self.db) > realid:
+                del self.db[realid]
             else:
-                self.__error('1008', str(i + 1))
+                self.__error('1008', str(realid))
         self.__write()
 
     def __write(self):
