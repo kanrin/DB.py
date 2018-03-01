@@ -57,11 +57,19 @@ class Database:
         if len(title) == len(value):
             for i in range(0, len(title)):
                 self.db[realid][indexs[i]] = value[i]
-                self.__write()
+            self.__write()
         else:
             self.__error('1005')
             return False
 
+    def delete(self, ids):
+        id = ids.split(',')
+        for i in range(0, len(id)):
+            if len(self.db) > i + 1:
+                del self.db[i + 1]
+            else:
+                self.__error('1008', str(i + 1))
+        self.__write()
 
     def __write(self):
         try:
@@ -106,6 +114,7 @@ class Database:
             '1005': 'value error',
             '1006': 'the title not found',
             '1007': 'error type',
+            '1008': 'can\'t found the id',
             '1100': 'database load failed',
             '1101': 'database write failed'
         }
