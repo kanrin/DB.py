@@ -1,8 +1,14 @@
+"""
+    @Project : DB.py
+    @Auther  : Kanrin
+    @Date    : 2018/02/28
+"""
 # -*- coding=utf-8 -*-
 import os
 import pickle
 
-class Database:
+
+class Database(object):
     def __init__(self, dbname):
         self.dbname = dbname
         try:
@@ -11,11 +17,16 @@ class Database:
             self.db = []
             self.__error('1100', '! init database')
 
+    # write data when the class destory
+    def __del__(self):
+        self.__write()
+
+    # insert the value
+    # data   <class list>
     def insert(self, data):
         if(len(self.db) > 0):
             if not self.__check_value(data):
                 self.db.append(data)
-                self.__write()
             else:
                 self.__error('1002', data)
                 return False
@@ -23,11 +34,14 @@ class Database:
             self.__error('1003')
             return False
 
+    # select the value where titles
+    # titles   <class list>
     def select(self, titles):
-        title = titles.split(',')
-        index_t = self.__check_title(title)
+        if not self.__check_args(titles):
+            return False
+        index_t = self.__check_title(titles)
         if len(index_t) == 0:
-            # 未找到值
+            # can't find the value
             self.__error('1004')
             return False
         else:
@@ -40,38 +54,48 @@ class Database:
                 r[self.db[0][index]] = a
             return r
 
+    # create a database
+    # titles   <class list>
     def create(self, titles):
+        if not self.__check_args(titles):
+            return False
         if len(self.db) == 0:
             self.db.append(titles)
-            self.__write()
             return True
         else:
             self.__error('1001')
             return False
 
+    # update a data
+    # titles   <class list>
+    # values   <class list>
     def update(self, titles, values, id):
-        title = titles.split(',')
-        value = values.split(',')
+        if not self.__check_args(titles):
+            return False
+        if not self.__check_args(values):
+            return False
         realid = id + 1
-        indexs = self.__check_title(title)
-        if len(title) == len(value):
-            for i in range(0, len(title)):
-                self.db[realid][indexs[i]] = value[i]
-            self.__write()
+        indexs = self.__check_title(titles)
+        if len(titles) == len(values):
+            for i in range(0, len(titles)):
+                self.db[realid][indexs[i]] = values[i]
         else:
             self.__error('1005')
             return False
 
+    # delete datas by id
+    # ids   <class list>
     def delete(self, ids):
-        id = ids.split(',')
-        for i in range(0, len(id)):
-            realid = int(id[i]) + 1
+        if not self.__check_args(ids):
+            return False
+        for i in range(0, len(ids)):
+            realid = int(ids[i]) + 1
             if len(self.db) > realid:
                 del self.db[realid]
             else:
                 self.__error('1008', str(realid))
-        self.__write()
 
+    # wirte the db in *.bin file
     def __write(self):
         try:
             pickle.dump(self.db, open(os.path.join('data', self.dbname + '.bin'), 'wb+'))
@@ -79,6 +103,7 @@ class Database:
             self.__error('1101')
             print(e)
 
+    # check the title in db frist line
     def __check_title(self, title):
         if isinstance(title, list):
             index_t = []
@@ -96,7 +121,6 @@ class Database:
             self.__error('1006')
             return False
 
-
     def __check_value(self, data):
         if isinstance(data, list):
             return data in self.db
@@ -106,6 +130,10 @@ class Database:
                     return True
             return False
 
+    def __check_args(self, arg):
+        return isinstance(arg, list)
+
+    # print error msg
     def __error(self, code, info=''):
         infos = {
             '1001': 'database exsit',
