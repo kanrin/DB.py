@@ -3,13 +3,12 @@
     @Auther  : Kanrin
     @Date    : 2018/02/28
 """
-# -*- coding=utf-8 -*-
 import os
 import pickle
 
 
 class Database(object):
-    def __init__(self, dbname):
+    def __init__(self, dbname) -> None:
         self.dbname = dbname
         try:
             self.db = pickle.load(open(os.path.join('data', self.dbname + '.bin'), 'rb+'))
@@ -18,15 +17,16 @@ class Database(object):
             self.__error('1100', '! init database')
 
     # write data when the class destory
-    def __del__(self):
+    def __del__(self) -> None:
         self.__write()
 
     # insert the value
     # data   <class list>
-    def insert(self, data):
+    def insert(self, data) -> bool:
         if(len(self.db) > 0):
             if not self.__check_value(data):
                 self.db.append(data)
+                return True
             else:
                 self.__error('1002', data)
                 return False
